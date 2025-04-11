@@ -1,0 +1,1 @@
+# Previsao-Rebaixamento_Brasileirao2025-SerieA
