@@ -46,6 +46,7 @@ Para garantir que o aplicativo funcione corretamente, é essencial instalar toda
 venv\Scripts\activate
 
 - No macOS/Linux:
+  
 source venv/bin/activate
 
 - Instale as dependências do projeto:
