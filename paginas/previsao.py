@@ -6,11 +6,7 @@ import io
 from utils.processamento import fazer_previsao
 
 def main():
-    """
-    Página principal de previsão: individual e em lote (upload de CSV).
-    """
-
-    # --- Cabeçalho e explicação do modelo ---
+   
     st.markdown("""
     <div class="card">
       <h3>📋 Sobre esta ferramenta</h3>
@@ -24,7 +20,7 @@ def main():
     </div>
     """, unsafe_allow_html=True)
 
-    # --- Previsão Lote (Arquivo CSV) ---
+    # Previsão Lote (Arquivo CSV)
     st.subheader("Previsão em Lote – Arquivo CSV")
 
     # Botão: Baixar template
@@ -44,7 +40,7 @@ def main():
         mime="text/csv"
     )
 
-    # Expander: Exemplo visual do CSV
+    
     with st.expander("Ver formato de exemplo (clique para abrir)"):
         st.dataframe(template_df, use_container_width=True)
         st.markdown("""
@@ -85,7 +81,7 @@ def main():
 
         st.markdown("---")
 
-    # --- FORMULÁRIO INDIVIDUAL ---
+    # FORMULÁRIO 
     col1, col2 = st.columns([1, 1])
     with col1:
         st.markdown("<h3 class='subheader'>Dados do Clube</h3>", unsafe_allow_html=True)
@@ -138,7 +134,7 @@ def main():
                     </div>
                     """, unsafe_allow_html=True)
                     
-                    # Gráfico de pizza centralizado
+                    
                     st.markdown('<div style="display: flex; justify-content: center;">', unsafe_allow_html=True)
                     col_pizza = st.columns([1, 2, 1])[1]
                     with col_pizza:
@@ -165,7 +161,7 @@ def main():
                         st.plotly_chart(fig, use_container_width=False)
                     st.markdown('</div>', unsafe_allow_html=True)
 
-                    # Espaço entre os gráficos
+                    
                     st.markdown("<br>", unsafe_allow_html=True)
 
                     # Criando colunas para a tabela e o gráfico radar

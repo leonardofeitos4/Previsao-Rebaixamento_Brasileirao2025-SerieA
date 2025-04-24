@@ -5,10 +5,7 @@ import numpy as np
 from utils.processamento import fazer_previsao
 
 def main():
-    """
-    Página que mostra como diferentes variáveis afetam
-    a probabilidade de rebaixamento de um clube.
-    """
+    
     st.markdown("<h3 class='subheader'>Análise de Sensibilidade</h3>", unsafe_allow_html=True)
     st.markdown("""
     <div class="card">

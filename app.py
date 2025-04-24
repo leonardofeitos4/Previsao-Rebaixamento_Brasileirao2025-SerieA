@@ -2,7 +2,7 @@ import streamlit as st
 import os
 import sys
 
-# Adiciona o diretório atual ao PATH do Python
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from controllers.config import show_title, set_page_configuration
