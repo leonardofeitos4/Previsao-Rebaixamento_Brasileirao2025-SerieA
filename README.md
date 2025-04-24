@@ -43,7 +43,7 @@ Para garantir que o aplicativo funcione corretamente, é essencial instalar toda
    ```bash
    python -m venv venv
 - No Windows: 
- - venv\Scripts\activate
+  - venv\Scripts\activate
 
 - No macOS/Linux:
   - source venv/bin/activate
