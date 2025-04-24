@@ -42,7 +42,7 @@ Para garantir que o aplicativo funcione corretamente, é essencial instalar toda
 1. **(Opcional, mas recomendado)** Crie um ambiente virtual:
    ```bash
    python -m venv venv
-- No Windows:   
+- No Windows: 
  - venv\Scripts\activate
 
 - No macOS/Linux:
