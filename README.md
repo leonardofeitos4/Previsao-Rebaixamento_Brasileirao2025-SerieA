@@ -37,9 +37,11 @@ A base de dados utilizada para treinar o modelo inclui informações sobre os cl
 - `Situacao`: Classificação final do clube na temporada (por exemplo, Top4, Rebaixado)
 - `Status`: Indicador de rebaixamento (1 para rebaixado, 0 para não rebaixado)
 Exemplo das primeiras linhas da base de dados:
+
 | Clube     | Plantel | ø Idade | Estrangeiros | ø Valor de Mercado | Valor de Mercado Total | Temporada | Pontos | Situação | Status |
 |-----------|---------|---------|--------------|---------------------|-------------------------|------------|--------|----------|--------|
 | São Paulo | 45      | 25      | 6            | 3.33                | 149.65                  | 2014       | 70     | Top4     | 1.0    |
+
 
 
 ## 📦 Instalação de Dependências
