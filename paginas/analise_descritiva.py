@@ -1,5 +1,3 @@
-# paginas/analise_descritiva.py
-
 import streamlit as st
 from pathlib import Path
 import pandas as pd
