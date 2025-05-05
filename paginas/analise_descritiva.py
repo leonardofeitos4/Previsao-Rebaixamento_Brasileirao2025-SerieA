@@ -9,6 +9,7 @@ import plotly.express as px
 ROOT = Path(__file__).resolve().parent.parent
 
 @st.cache_data
+
 def carregar_historico():
     dados_dir = ROOT / "dados"
     csv_paths = list(dados_dir.rglob("*.csv"))
@@ -54,27 +55,32 @@ def main():
     stats = stats[['Média', 'Mediana', 'Desvio Padrão', 'Mínimo', 'Máximo']]
     st.dataframe(stats, use_container_width=True)
 
-    # 3. Distribuição Histórica por Clube (Colunas Empilhadas) com rótulos de dados
+    # 3. Distribuição Histórica por Clube (Colunas Empilhadas)
     st.markdown("### 3. Distribuição Histórica por Clube (Colunas Empilhadas)")
     clubes = sorted(df['Clube'].unique())
     clube_sel = st.selectbox("Selecione um Clube", clubes)
 
-    # Prepara dados para empilhar por temporada
-    df_clube_todas = df[df['Clube'] == clube_sel][['Temporada', 'Plantel', 'Estrangeiros', 'Valor de Mercado Total', 'Pontos']]
-    df_stack = df_clube_todas.set_index('Temporada')
-
-    # Gráfico de colunas empilhadas com rótulos
-    fig_stack = px.bar(
-        df_stack,
-        x=df_stack.index,
-        y=['Plantel', 'Estrangeiros', 'Valor de Mercado Total', 'Pontos'],
-        title=f"Métricas Empilhadas por Temporada - {clube_sel}",
-        labels={'value': 'Valor', 'index': 'Temporada', 'variable': 'Métrica'},
-        text_auto='.2s'
-    )
-    fig_stack.update_traces(textposition='inside')
-    fig_stack.update_layout(barmode='stack', xaxis_title='Temporada', yaxis_title='Total')
-    st.plotly_chart(fig_stack, use_container_width=True)
+    df_clube_todas = df[df['Clube'] == clube_sel]
+    if 'Temporada' not in df_clube_todas.columns:
+        st.error("Coluna 'Temporada' não encontrada para distribuição histórica.")
+    else:
+        possiveis = ['Plantel', 'Estrangeiros', 'Valor de Mercado Total', 'Pontos']
+        metrics = [c for c in possiveis if c in df_clube_todas.columns]
+        if not metrics:
+            st.error("Nenhuma métrica numérica padrão encontrada para empilhar.")
+        else:
+            df_stack = df_clube_todas[['Temporada'] + metrics].set_index('Temporada')
+            fig_stack = px.bar(
+                df_stack,
+                x=df_stack.index,
+                y=metrics,
+                title=f"Métricas Empilhadas por Temporada - {clube_sel}",
+                labels={'value': 'Valor', 'Temporada': 'Ano', 'variable': 'Métrica'},
+                text_auto=True
+            )
+            fig_stack.update_traces(textposition='inside')
+            fig_stack.update_layout(barmode='stack', xaxis_title='Temporada', yaxis_title='Total')
+            st.plotly_chart(fig_stack, use_container_width=True)
 
     # 4. Evolução de pontos por clube (todas as temporadas)
     st.markdown("### 4. Evolução de Pontos por Clube ao Longo das Temporadas")
@@ -101,8 +107,8 @@ def main():
     st.write(
         """
         - Filtro exclui 2025; escolha a temporada desejada.
-        - Seção 3 agora exibe rótulos de dados dentro das barras empilhadas.
-        - Em Seção 4, comparação de pontos entre clubes.
+        - Seção 3 exibe colunas empilhadas com rótulos de dados.
+        - Seção 4 permite comparação de pontos entre clubes.
         """
     )
 
