@@ -4,74 +4,74 @@ import plotly.express as px
 import os
 
 def main():
-    st.title("Análise Descritiva – Campeonato Brasileiro Série A")
+    st.title("📊 Análise Descritiva")
 
-    # Carregar dados de forma segura (sem caminho absoluto)
-    caminho_base = os.path.join('dados', 'todos_clubes_serieA.csv')
+    # Caminho relativo
+    caminho_base = os.path.join("dados", "BASE_FINAL.csv")
     df = pd.read_csv(caminho_base)
 
-    # Converter Temporada pra inteiro
-    df['Temporada'] = df['Temporada'].astype(int)
+    st.subheader("📑 Visão Geral da Base")
+    st.write(f"Linhas: {df.shape[0]}   Colunas: {df.shape[1]}")
+    st.dataframe(df)
 
-    # Remover ano 2025 da análise
-    df = df[df['Temporada'] != 2025]
+    # Filtro por temporada
+    temporadas_disponiveis = sorted(df['Temporada'].unique())
+    temporada_sel = st.selectbox("Selecione a Temporada:", temporadas_disponiveis)
 
-    st.subheader("Visão Geral da Base")
+    df_filtrado = df[df['Temporada'] == temporada_sel]
 
-    # Filtro de ano
-    anos_disponiveis = sorted(df['Temporada'].unique())
-    ano_sel = st.selectbox("Selecione o ano", anos_disponiveis, index=len(anos_disponiveis)-1)
+    st.subheader(f"📋 Estatísticas Descritivas (Ano: {temporada_sel})")
+    st.write("**Resumo das variáveis numéricas considerando todos os clubes para a temporada selecionada.**")
+    st.dataframe(df_filtrado.describe())
 
-    df_ano = df[df['Temporada'] == ano_sel]
-
-    st.write(f"**Base de Dados – Temporada {ano_sel}**")
-    st.write(f"Linhas: {df_ano.shape[0]}   Colunas: {df_ano.shape[1]}")
-    st.dataframe(df_ano)
-
-    st.subheader("Estatísticas Descritivas por Variável")
-
-    # Estatísticas por variável numérica, com ano
-    stats = df_ano.describe().transpose()
-    st.dataframe(stats)
-
-    st.subheader("Distribuições das Variáveis Numéricas")
-
-    num_cols = ['Plantel', 'Estrangeiros', 'Valor de Mercado Total', 'Pontos']
-
-    for col in num_cols:
-        fig = px.histogram(df, x=col, color='Temporada', nbins=20, title=f'Distribuição de {col} por Temporada')
+    st.subheader("📈 Distribuições das Variáveis Numéricas")
+    colunas_numericas = ['Plantel', 'Idade Média', 'Estrangeiros', 'Valor de Mercado Total', 'Pontos']
+    for coluna in colunas_numericas:
+        fig = px.histogram(df_filtrado, x=coluna, nbins=15, title=f'Distribuição de {coluna} ({temporada_sel})')
         st.plotly_chart(fig, use_container_width=True)
 
-    st.subheader("Análise de um Clube Específico")
-
+    # Filtro por clube
+    st.subheader("🏟️ Análises Individuais por Clube")
     clubes_disponiveis = sorted(df['Clube'].unique())
-    clube_sel = st.selectbox("Selecione o clube", clubes_disponiveis)
+    clube_sel = st.selectbox("Selecione o Clube:", clubes_disponiveis)
 
-    df_clube = df[df['Clube'] == clube_sel]
+    df_clube_todas = df[df['Clube'] == clube_sel][['Temporada', 'Plantel', 'Estrangeiros', 'Valor de Mercado Total', 'Pontos']]
+    st.write(f"📊 Dados históricos para o **{clube_sel}**:")
+    st.dataframe(df_clube_todas)
 
-    st.write(f"**Dados do clube {clube_sel}**")
-    st.dataframe(df_clube)
+    st.subheader(f"📊 Estatísticas Descritivas por Variável — {clube_sel}")
+    st.dataframe(df_clube_todas.describe())
 
-    # Gráfico colunas empilhadas verticais com rótulos
-    st.subheader(f"Métricas Empilhadas – {clube_sel}")
+    st.subheader(f"📊 Gráfico de Colunas Empilhadas — {clube_sel}")
 
-    metrics = ['Plantel', 'Estrangeiros', 'Valor de Mercado Total', 'Pontos']
-    df_stack = df_clube[['Temporada'] + metrics]
-    df_stack_melted = df_stack.melt(id_vars='Temporada', value_vars=metrics, var_name='Métrica', value_name='Valor')
+    df_clube_melt = df_clube_todas.melt(id_vars='Temporada', var_name='Variável', value_name='Valor')
 
     fig_stack = px.bar(
-        df_stack_melted,
-        x='Temporada',
-        y='Valor',
-        color='Métrica',
-        barmode='stack',
-        title=f"Métricas Empilhadas – {clube_sel}",
-        text_auto=True
+        df_clube_melt,
+        x="Temporada",
+        y="Valor",
+        color="Variável",
+        text_auto=True,
+        barmode="stack",
+        title=f'Colunas Empilhadas para {clube_sel}'
     )
-
-    fig_stack.update_traces(textposition='inside')
-    fig_stack.update_layout(xaxis_title='Temporada', yaxis_title='Valor Total')
+    fig_stack.update_layout(xaxis_title="Temporada", yaxis_title="Valor", legend_title="Variável")
     st.plotly_chart(fig_stack, use_container_width=True)
+
+    st.subheader("📊 Boxplots das Variáveis Numéricas (Comparação entre Clubes)")
+
+    col_box = st.selectbox("Selecione a Variável para o Boxplot:", colunas_numericas)
+
+    fig_box = px.box(
+        df[df['Temporada'] != 2025],
+        x="Clube",
+        y=col_box,
+        color="Clube",
+        title=f'Distribuição de {col_box} por Clube (exceto 2025)',
+        points="all"
+    )
+    fig_box.update_layout(xaxis_title="Clube", yaxis_title=col_box)
+    st.plotly_chart(fig_box, use_container_width=True)
 
 if __name__ == "__main__":
     main()
