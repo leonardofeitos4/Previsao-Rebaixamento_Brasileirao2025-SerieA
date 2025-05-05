@@ -1,93 +1,84 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 import os
+import plotly.express as px
 
 def main():
-    st.set_page_config(layout="wide")  # Usa layout amplo
-    st.title("📊 Análise Descritiva")
+    # Título da página
+    st.header("📊 Análise Descritiva")
 
-    # Carregando base de dados
-    caminho_dados = os.path.join("dados", "BASE_FINAL.csv")
-    df = pd.read_csv(caminho_dados)
-    df.columns = df.columns.str.strip()  # Corrige espaços nos nomes
+    # Carregando a base completa
+    caminho = os.path.join("dados", "BASE_FINAL.csv")
+    df = pd.read_csv(caminho)
+    df.columns = df.columns.str.strip()
 
-    # Visão Geral da Base
+    # 1) Visão Geral da Base
     st.subheader("📋 Visão Geral da Base Completa")
     st.dataframe(df, use_container_width=True)
 
-    # Filtro de temporada
-    temporadas_disponiveis = sorted(df['Temporada'].unique())
-    temporada_sel = st.selectbox("Selecione o ano:", temporadas_disponiveis)
-    df_filtrado = df[df['Temporada'] == temporada_sel]
+    # 2) Estatísticas Descritivas por temporada
+    temporadas = sorted(df['Temporada'].unique())
+    ano = st.selectbox("Selecione a temporada:", temporadas)
+    df_ano = df[df['Temporada'] == ano]
 
-    # Estatísticas Descritivas
-    st.subheader(f"📊 Estatísticas Descritivas ({temporada_sel})")
-    desc = df_filtrado.describe().T
+    st.subheader(f"📈 Estatísticas Descritivas ({ano})")
+    desc = df_ano.describe().T
     st.dataframe(desc, use_container_width=True, height=400)
 
-    # Tabela de Distribuições das Variáveis Numéricas
-    st.subheader(f"📈 Tabela de Variáveis Numéricas ({temporada_sel})")
-    colunas_numericas = ['Plantel', 'Estrangeiros', 'Valor de Mercado Total', 'Pontos']
-    # Exibe todas as observações para as colunas selecionadas
-    if all(col in df_filtrado.columns for col in colunas_numericas):
-        st.dataframe(df_filtrado[colunas_numericas], use_container_width=True)
+    # 3) Tabela de Variáveis Numéricas
+    st.subheader(f"🔢 Variáveis Numéricas ({ano})")
+    num_cols = ['Plantel', 'Estrangeiros', 'Valor de Mercado Total', 'Pontos']
+    existentes = [c for c in num_cols if c in df_ano.columns]
+    if existentes:
+        st.dataframe(df_ano[existentes], use_container_width=True)
     else:
-        st.write("⚠️ Algumas colunas numéricas não estão disponíveis nesta temporada.")
+        st.warning("Nenhuma coluna numérica disponível nesta temporada.")
 
-    # Filtro de clube
-    st.sidebar.subheader("Seleção de Clube")
-    clubes_disponiveis = sorted(df['Clube'].unique())  # permite ver todos os clubes
-    clube_sel = st.sidebar.selectbox("Selecione o clube:", clubes_disponiveis)
-
-    # Dados do clube na temporada
-    df_clube = df_filtrado[df_filtrado['Clube'] == clube_sel]
-    st.subheader(f"📑 Dados do {clube_sel} em {temporada_sel}")
-    st.dataframe(df_clube, use_container_width=True)
+    # 4) Dados do clube para comparação única
+    st.subheader(f"📑 Dados do Clube em {ano}")
+    clubes = sorted(df['Clube'].unique())
+    clube = st.selectbox("Selecione o clube:", clubes)
+    df_clube_ano = df_ano[df_ano['Clube'] == clube]
+    st.dataframe(df_clube_ano, use_container_width=True)
 
     # Gráfico de indicadores (única temporada)
-    st.subheader(f"📊 Indicadores do {clube_sel} em {temporada_sel}")
-    if not df_clube.empty:
-        df_clube_melt = df_clube.melt(
-            id_vars=['Clube', 'Temporada'],
-            value_vars=colunas_numericas,
+    st.subheader(f"📊 Indicadores do {clube} em {ano}")
+    if not df_clube_ano.empty:
+        melt1 = df_clube_ano.melt(
+            id_vars=['Clube','Temporada'],
+            value_vars=existentes,
             var_name='Indicador',
             value_name='Valor'
         )
-        fig_stack = px.bar(
-            df_clube_melt,
-            x='Indicador',
-            y='Valor',
+        fig1 = px.bar(
+            melt1,
+            x='Indicador', y='Valor',
             color='Indicador',
             text='Valor',
-            title=f'Indicadores do {clube_sel} em {temporada_sel}',
+            title=f"{clube} — {ano}"
         )
-        fig_stack.update_layout(barmode='stack', xaxis_title='Indicador', yaxis_title='Valor')
-        st.plotly_chart(fig_stack, use_container_width=True)
+        fig1.update_layout(barmode='stack')
+        st.plotly_chart(fig1, use_container_width=True)
     else:
-        st.write("⚠️ Nenhum dado disponível para esse clube e ano.")
+        st.info("Sem dados para este clube/ano.")
 
-    # Gráfico de indicadores ao longo dos anos para o clube
-    st.subheader(f"📈 Evolução de Indicadores do {clube_sel} ({min(temporadas_disponiveis)}–{max(temporadas_disponiveis)})")
-    df_clube_all = df[df['Clube'] == clube_sel]
+    # 5) Evolução histórica do clube
+    st.subheader(f"📈 Evolução de Indicadores do {clube} (Histórico)")
+    df_clube_all = df[df['Clube'] == clube]
     if not df_clube_all.empty:
-        df_all_melt = df_clube_all.melt(
-            id_vars=['Clube', 'Temporada'],
-            value_vars=colunas_numericas,
+        melt2 = df_clube_all.melt(
+            id_vars=['Clube','Temporada'],
+            value_vars=existentes,
             var_name='Indicador',
             value_name='Valor'
         )
-        fig_evol = px.bar(
-            df_all_melt,
-            x='Temporada',
-            y='Valor',
+        fig2 = px.bar(
+            melt2,
+            x='Temporada', y='Valor',
             color='Indicador',
             barmode='group',
-            title=f'Evolução dos Indicadores do {clube_sel} ao Longo dos Anos'
+            title=f"Evolução de {clube}"
         )
-        st.plotly_chart(fig_evol, use_container_width=True)
+        st.plotly_chart(fig2, use_container_width=True)
     else:
-        st.write("⚠️ Não há dados históricos para esse clube.")
-
-if __name__ == '__main__':
-    main()
+        st.info("Sem histórico para esse clube.")
