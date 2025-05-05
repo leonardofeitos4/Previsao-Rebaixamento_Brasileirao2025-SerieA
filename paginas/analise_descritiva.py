@@ -1,3 +1,5 @@
+# paginas/analise_descritiva.py
+
 import streamlit as st
 from pathlib import Path
 import pandas as pd
@@ -53,7 +55,7 @@ def main():
     st.dataframe(stats, use_container_width=True)
 
     # 3. Distribuição Histórica por Clube (Colunas Empilhadas) com rótulos de dados
-    st.markdown("### 3. Distribuição Histórica por Clube ")
+    st.markdown("### 3. Distribuição Histórica por Clube (Colunas Empilhadas)")
     clubes = sorted(df['Clube'].unique())
     clube_sel = st.selectbox("Selecione um Clube", clubes)
 
