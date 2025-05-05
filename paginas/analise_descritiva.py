@@ -87,8 +87,13 @@ def main():
 
     # Evolução histórica do clube
     st.subheader(f"📈 Evolução Histórica de {sel_clube}")
-    df_hist = df[df['Clube'] == sel_clube]
+
+    # 📋 Dados da evolução histórica
+    df_hist = df[(df['Clube'] == sel_clube) & (df['Temporada'] != 2025)]
     if not df_hist.empty:
+        st.markdown("📋 **Dados da Evolução Histórica**")
+        st.dataframe(df_hist, use_container_width=True)
+
         melt2 = df_hist.melt(
             id_vars=['Clube', 'Temporada'],
             value_vars=existentes,
@@ -104,15 +109,15 @@ def main():
     else:
         st.info("Sem histórico disponível para esse clube.")
 
-    # 📊 Evolução Histórica — Comparação de Pontos
-    st.subheader("📊 Evolução Histórica — Comparação de Pontos")
+    # Comparação de pontos ao longo das temporadas
+    st.subheader("📊 Comparação de Pontos ao Longo dos Anos")
     sel_clubes = st.multiselect(
         "Escolha clubes para comparar:", clubes,
-        default=[c for c in ['Flamengo', 'Vasco'] if c in clubes]
+        default=[c for c in ['Flamengo', 'Vasco da'] if c in clubes]
     )
 
     if sel_clubes:
-        df_comp = df[df['Clube'].isin(sel_clubes)]
+        df_comp = df[(df['Clube'].isin(sel_clubes)) & (df['Temporada'] != 2025)]
         fig3 = px.line(
             df_comp, x='Temporada', y='Pontos',
             color='Clube', markers=True,
