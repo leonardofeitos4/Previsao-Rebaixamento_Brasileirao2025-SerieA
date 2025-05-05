@@ -81,6 +81,7 @@ def main():
             title=f"{sel_clube} — {sel_ano}"
         )
         fig1.update_layout(barmode='stack')
+        fig1.update_traces(textposition='outside')
         st.plotly_chart(fig1, use_container_width=True)
     else:
         st.info("Sem dados para este clube na temporada selecionada.")
@@ -101,10 +102,15 @@ def main():
             value_name='Valor'
         )
         melt2['Indicador'] = melt2['Indicador'].map(COL_MAP)
+
         fig2 = px.bar(
-            melt2, x='Temporada', y='Valor', color='Indicador',
-            barmode='group', title=f"Evolução de Indicadores - {sel_clube}"
+            melt2, x='Temporada', y='Valor',
+            color='Indicador',
+            barmode='group',
+            text='Valor',
+            title=f"Evolução de Indicadores - {sel_clube}"
         )
+        fig2.update_traces(textposition='outside')
         st.plotly_chart(fig2, use_container_width=True)
     else:
         st.info("Sem histórico disponível para esse clube.")
