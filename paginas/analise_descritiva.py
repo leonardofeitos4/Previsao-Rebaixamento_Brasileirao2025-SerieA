@@ -106,12 +106,11 @@ def main():
 
     # Comparação de pontos ao longo das temporadas
     st.subheader("📊 Comparação de Pontos ao Longo dos Anos")
-    default_selecao = [c for c in ['Flamengo', 'Vasco'] if c in clubes]
     sel_clubes = st.multiselect(
-        "Escolha clubes para comparar:",
-        clubes,
-        default=default_selecao
+    "Escolha clubes para comparar:", clubes,
+    default=[c for c in ['Flamengo', 'Vasco'] if c in clubes]
     )
+
     if sel_clubes:
         df_comp = df[df['Clube'].isin(sel_clubes)]
         fig3 = px.line(
