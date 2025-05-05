@@ -104,11 +104,11 @@ def main():
     else:
         st.info("Sem histórico disponível para esse clube.")
 
-    # Comparação de pontos ao longo das temporadas
-    st.subheader("📊 Comparação de Pontos ao Longo dos Anos")
+    # 📊 Evolução Histórica — Comparação de Pontos
+    st.subheader("📊 Evolução Histórica — Comparação de Pontos")
     sel_clubes = st.multiselect(
-    "Escolha clubes para comparar:", clubes,
-    default=[c for c in ['Flamengo', 'Vasco'] if c in clubes]
+        "Escolha clubes para comparar:", clubes,
+        default=[c for c in ['Flamengo', 'Vasco'] if c in clubes]
     )
 
     if sel_clubes:
