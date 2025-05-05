@@ -6,7 +6,7 @@ import io
 from utils.processamento import fazer_previsao
 
 def main():
-   
+    # Descrição sobre a ferramenta
     st.markdown("""
     <div class="card">
       <h3>📋 Sobre esta ferramenta</h3>
@@ -20,10 +20,10 @@ def main():
     </div>
     """, unsafe_allow_html=True)
 
-    # Previsão Lote (Arquivo CSV)
+    # Seção para previsão em lote com arquivo CSV
     st.subheader("Previsão em Lote – Arquivo CSV")
 
-    # Botão: Baixar template
+    # Botão para baixar o template de arquivo CSV
     template_df = pd.DataFrame({
         "Plantel": [28, 24],
         "Estrangeiros": [4, 2],
@@ -40,7 +40,7 @@ def main():
         mime="text/csv"
     )
 
-    
+    # Exibir o formato do arquivo CSV de exemplo
     with st.expander("Ver formato de exemplo (clique para abrir)"):
         st.dataframe(template_df, use_container_width=True)
         st.markdown("""
@@ -48,7 +48,7 @@ def main():
         <code>Plantel, Estrangeiros, Valor de Mercado Total</code>
         """, unsafe_allow_html=True)
 
-    # Uploader + previsão
+    # Uploader de arquivo CSV e exibição da previsão
     uploaded_file = st.file_uploader(
         "Faça upload de um arquivo CSV para previsão em lote",
         type=["csv"]
@@ -67,7 +67,7 @@ def main():
         st.success("Resultados das previsões no arquivo:")
         st.dataframe(df_csv, use_container_width=True)
 
-        # Gráfico de barras lote
+        # Gráfico de barras para o lote de previsões
         if "Probabilidade Rebaixamento (%)" in df_csv.columns and "Resultado" in df_csv.columns:
             fig_batch = px.bar(
                 df_csv,
@@ -81,7 +81,7 @@ def main():
 
         st.markdown("---")
 
-    # FORMULÁRIO 
+    # Formulário para previsão de um clube específico
     col1, col2 = st.columns([1, 1])
     with col1:
         st.markdown("<h3 class='subheader'>Dados do Clube</h3>", unsafe_allow_html=True)
@@ -110,6 +110,8 @@ def main():
                 previsao, probabilidade = fazer_previsao(dados_entrada_df)
                 prob_rebaixamento = probabilidade[0][1]
                 resultado = 'Rebaixado' if prob_rebaixamento > 0.5 else 'Não Rebaixado'
+                
+                # Determinando a cor e a mensagem com base na probabilidade
                 if prob_rebaixamento < 0.3:
                     cor = "green"
                     mensagem = "Baixo risco de rebaixamento"
@@ -134,7 +136,7 @@ def main():
                     </div>
                     """, unsafe_allow_html=True)
                     
-                    
+                    # Exibindo gráfico de pizza
                     st.markdown('<div style="display: flex; justify-content: center;">', unsafe_allow_html=True)
                     col_pizza = st.columns([1, 2, 1])[1]
                     with col_pizza:
@@ -161,10 +163,8 @@ def main():
                         st.plotly_chart(fig, use_container_width=False)
                     st.markdown('</div>', unsafe_allow_html=True)
 
-                    
+                    # Comparação com outros clubes
                     st.markdown("<br>", unsafe_allow_html=True)
-
-                    # Criando colunas para a tabela e o gráfico radar
                     col_table, col_radar = st.columns(2)
                     comparison_data = {
                         'Clube': ['Seu Clube', 'Média Série A', 'Clube Rebaixado Típico', 'Clube Top-4 Típico'],
