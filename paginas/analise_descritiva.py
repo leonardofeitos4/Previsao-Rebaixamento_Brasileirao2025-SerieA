@@ -1,28 +1,11 @@
-# paginas/analise_descritiva.py
-
 import streamlit as st
-from pathlib import Path
 import pandas as pd
 import plotly.express as px
-
-# Define a raiz do projeto a partir deste arquivo
-ROOT = Path(__file__).resolve().parent.parent
-
-@st.cache_data
-
-def carregar_historico():
-    dados_dir = ROOT / "dados"
-    csv_paths = list(dados_dir.rglob("*.csv"))
-    if not csv_paths:
-        st.error(f"Nenhum arquivo .csv encontrado em {dados_dir}")
-        return pd.DataFrame()
-    csv_path = csv_paths[0]
-    rel = csv_path.relative_to(ROOT)
-    st.sidebar.markdown(f"**Carregando:** `{rel}`")
-    return pd.read_csv(csv_path)
+from utils import carregar_historico  # ou ajuste se estiver em outro local
 
 def main():
     st.header("📈 Análise Descritiva da Série A")
+
     df = carregar_historico()
     if df.empty:
         st.stop()
@@ -39,8 +22,8 @@ def main():
     # 1. Visão geral da base
     st.markdown(f"### 1. Visão Geral - Temporada {temporada_sel}")
     st.markdown(
-        f"- **Total de clubes nesta temporada:** {df_ano['Clube'].nunique()}  \
-- **Total de registros (linhas):** {df_ano.shape[0]}"
+        f"- **Total de clubes nesta temporada:** {df_ano['Clube'].nunique()}  \n"
+        f"- **Total de registros (linhas):** {df_ano.shape[0]}"
     )
     st.dataframe(df_ano, use_container_width=True)
 
@@ -68,16 +51,17 @@ def main():
         if not metrics:
             st.warning("Nenhuma métrica numérica padrão encontrada para empilhar.")
         else:
-            df_stack = df_clube_todas[['Temporada'] + metrics].set_index('Temporada')
+            df_stack = df_clube_todas[['Temporada'] + metrics]
+            df_long = df_stack.melt(id_vars='Temporada', value_vars=metrics, var_name='Métrica', value_name='Valor')
+
             fig_stack = px.bar(
-                df_stack,
-                x=df_stack.index,
-                y=metrics,
+                df_long,
+                x='Temporada',
+                y='Valor',
+                color='Métrica',
                 title=f"Métricas Empilhadas por Temporada - {clube_sel}",
-                labels={'value': 'Valor', 'Temporada': 'Ano', 'variable': 'Métrica'},
                 text_auto=True
             )
-            fig_stack.update_traces(textposition='inside')
             fig_stack.update_layout(barmode='stack', xaxis_title='Temporada', yaxis_title='Total')
             st.plotly_chart(fig_stack, use_container_width=True)
 
