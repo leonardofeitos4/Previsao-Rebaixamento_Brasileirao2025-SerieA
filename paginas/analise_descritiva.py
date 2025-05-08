@@ -122,13 +122,24 @@ def main():
         default=[c for c in ['Flamengo', 'Vasco da'] if c in clubes]
     )
 
+    # Filtro de múltiplas temporadas para comparação
+    sel_temp_comp = st.multiselect(
+        "Selecione as temporadas para comparação:",
+        temporadas,
+        default=[sel_ano]  # Define a temporada selecionada inicialmente
+    )
+
     if sel_clubes:
-        df_comp = df[(df['Clube'].isin(sel_clubes)) & (df['Temporada'] != 2025)]
+        # Ordena os dados pela temporada para evitar que a linha "volte"
+        df_comp = df[(df['Clube'].isin(sel_clubes)) & (df['Temporada'].isin(sel_temp_comp))]
+        df_comp = df_comp.sort_values(by='Temporada')  # Ordena pela temporada
+
         fig3 = px.line(
             df_comp, x='Temporada', y='Pontos',
             color='Clube', markers=True,
             title="Pontos por Temporada",
-            text='Pontos'
+            text='Pontos',
+            line_shape='linear'  # Garantir linha contínua
         )
         fig3.update_traces(textposition="top center")
         st.plotly_chart(fig3, use_container_width=True)
